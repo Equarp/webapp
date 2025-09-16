@@ -189,3 +189,41 @@ document.addEventListener('DOMContentLoaded', () => {
     new GameWebApp();
 
 });
+
+async init() {
+    try {
+        this.showLoadingScreen();
+        
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+        
+        // ДОБАВЬТЕ ЭТУ ПРОВЕРКУ
+        console.log('Telegram user data:', Telegram.WebApp.initDataUnsafe.user);
+        console.log('Telegram init data:', Telegram.WebApp.initData);
+        
+        if (!Telegram.WebApp.initDataUnsafe.user) {
+            throw new Error('Данные пользователя не получены от Telegram');
+        }
+        
+        await userProfile.init();
+        await telegramStars.init();
+        
+        this.setupEventListeners();
+        
+        setTimeout(() => {
+            this.hideLoadingScreen();
+            this.isLoading = false;
+        }, 3000);
+        
+    } catch (error) {
+        console.error('Ошибка инициализации приложения:', error);
+        this.hideLoadingScreen();
+        
+        // Покажем ошибку пользователю
+        Telegram.WebApp.showPopup({
+            title: 'Ошибка',
+            message: 'Не удалось загрузить данные: ' + error.message,
+            buttons: [{ type: 'ok' }]
+        });
+    }
+}
