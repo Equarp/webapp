@@ -5,69 +5,74 @@ class GameWebApp {
         this.init();
     }
 
-async init() {
-    try {
-        this.showLoadingScreen();
-        
-        Telegram.WebApp.ready();
-        Telegram.WebApp.expand();
-        
-        // Ждем немного для загрузки данных Telegram
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        const telegramUser = Telegram.WebApp.initDataUnsafe.user;
-        
-        if (!telegramUser) {
-            console.warn('Telegram user data not available, using fallback');
-            // Используем данные из localStorage или показываем форму входа
-            this.initializeWithFallbackData();
-        } else {
-            await userProfile.init();
-            await telegramStars.init();
-        }
-        
-        this.setupEventListeners();
-        
-        setTimeout(() => {
+    async init() {
+        try {
+            this.showLoadingScreen();
+            
+            // Инициализируем Telegram WebApp
+            Telegram.WebApp.ready();
+            Telegram.WebApp.expand();
+            
+            // Показываем данные Telegram в консоли для отладки
+            console.log('Telegram initData:', Telegram.WebApp.initData);
+            console.log('Telegram user data:', Telegram.WebApp.initDataUnsafe.user);
+            
+            // Ждем немного для инициализации Telegram
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Проверяем, есть ли данные пользователя
+            const telegramUser = Telegram.WebApp.initDataUnsafe.user;
+            if (!telegramUser) {
+                throw new Error('Данные пользователя Telegram не получены');
+            }
+            
+            // Инициализируем профиль с данными Telegram
+            await userProfile.init(telegramUser);
+            await telegramStars.init(telegramUser.id);
+            
+            this.setupEventListeners();
+            
+            // Скрываем загрузку через 2 секунды
+            setTimeout(() => {
+                this.hideLoadingScreen();
+                this.isLoading = false;
+            }, 2000);
+            
+        } catch (error) {
+            console.error('Ошибка инициализации:', error);
+            this.showError('Не удалось загрузить данные пользователя');
             this.hideLoadingScreen();
-            this.isLoading = false;
-        }, 3000);
-        
-    } catch (error) {
-        console.error('Ошибка инициализации приложения:', error);
-        this.initializeWithFallbackData();
-        this.hideLoadingScreen();
+        }
     }
-}
 
-initializeWithFallbackData() {
-    // Заглушка для тестирования
-    const fallbackUser = {
-        firstName: 'Тестовый',
-        lastName: 'Пользователь',
-        photoUrl: '/assets/images/default-avatar.png'
-    };
-    
-    document.getElementById('user-name').textContent = `${fallbackUser.firstName} ${fallbackUser.lastName}`;
-    document.getElementById('user-avatar').src = fallbackUser.photoUrl;
-}
+    showLoadingScreen() {
+        document.getElementById('loading-screen').classList.remove('hidden');
+        document.getElementById('app').classList.add('hidden');
+    }
+
     hideLoadingScreen() {
-        const loadingScreen = document.getElementById('loading-screen');
-        const app = document.getElementById('app');
-        
-        if (loadingScreen) loadingScreen.classList.add('hidden');
-        if (app) app.classList.remove('hidden');
+        document.getElementById('loading-screen').classList.add('hidden');
+        document.getElementById('app').classList.remove('hidden');
+    }
+
+    showError(message) {
+        Telegram.WebApp.showPopup({
+            title: 'Ошибка',
+            message: message,
+            buttons: [{ type: 'ok' }]
+        });
     }
 
     setupEventListeners() {
-        const navButtons = document.querySelectorAll('.nav-btn');
-        navButtons.forEach(button => {
+        // Навигация
+        document.querySelectorAll('.nav-btn').forEach(button => {
             button.addEventListener('click', (e) => {
                 const page = e.currentTarget.getAttribute('data-page');
                 this.navigateTo(page);
             });
         });
-        
+
+        // Кнопки управления балансом
         document.getElementById('deposit-ton')?.addEventListener('click', () => {
             this.showTONDepositModal();
         });
@@ -87,16 +92,6 @@ initializeWithFallbackData() {
         document.getElementById('request-gift')?.addEventListener('click', () => {
             this.requestGift();
         });
-        
-        document.querySelector('.close')?.addEventListener('click', () => {
-            this.hideModal('ton-connect-modal');
-        });
-        
-        window.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal')) {
-                e.target.classList.add('hidden');
-            }
-        });
     }
 
     navigateTo(pageId) {
@@ -109,125 +104,50 @@ initializeWithFallbackData() {
             targetPage.classList.add('active');
             this.currentPage = pageId;
         }
-        
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        const activeBtn = document.querySelector(`.nav-btn[data-page="${pageId}"]`);
-        if (activeBtn) {
-            activeBtn.classList.add('active');
-        }
     }
 
     showTONDepositModal() {
-        const modal = document.getElementById('ton-connect-modal');
-        if (modal) {
-            modal.classList.remove('hidden');
-        }
+        Telegram.WebApp.showPopup({
+            title: 'Пополнение TON',
+            message: 'Функция пополнения в разработке',
+            buttons: [{ type: 'ok' }]
+        });
     }
 
     showTONWithdrawModal() {
-        const amount = prompt('Введите сумму для вывода:');
-        if (amount && !isNaN(amount)) {
-            const address = prompt('Введите адрес TON кошелька:');
-            if (address) {
-                userProfile.withdrawTON(parseFloat(amount), address)
-                    .then(result => {
-                        alert(result.message);
-                    })
-                    .catch(error => {
-                        alert('Ошибка: ' + error.message);
-                    });
-            }
-        }
+        Telegram.WebApp.showPopup({
+            title: 'Вывод TON',
+            message: 'Функция вывода в разработке',
+            buttons: [{ type: 'ok' }]
+        });
     }
 
     depositStars() {
-        const amount = prompt('Введите сумму Stars для пополнения:');
-        if (amount && !isNaN(amount)) {
-            telegramStars.deposit(parseFloat(amount))
-                .catch(error => {
-                    alert('Ошибка: ' + error.message);
-                });
-        }
+        Telegram.WebApp.showPopup({
+            title: 'Пополнение Stars',
+            message: 'Функция пополнения в разработке',
+            buttons: [{ type: 'ok' }]
+        });
     }
 
     withdrawStars() {
-        const amount = prompt('Введите сумму Stars для вывода:');
-        if (amount && !isNaN(amount)) {
-            telegramStars.withdraw(parseFloat(amount))
-                .then(result => {
-                    alert(result.message);
-                })
-                .catch(error => {
-                    alert('Ошибка: ' + error.message);
-                });
-        }
+        Telegram.WebApp.showPopup({
+            title: 'Вывод Stars',
+            message: 'Функция вывода в разработке',
+            buttons: [{ type: 'ok' }]
+        });
     }
 
     requestGift() {
-        userProfile.requestGift()
-            .then(result => {
-                if (result.success) {
-                    alert(`Запрос подарка отправлен! Код: ${result.code}`);
-                } else {
-                    alert('Ошибка: ' + result.message);
-                }
-            })
-            .catch(error => {
-                alert('Ошибка: ' + error.message);
-            });
-    }
-
-    hideModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) {
-            modal.classList.add('hidden');
-        }
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    new GameWebApp();
-
-});
-
-async init() {
-    try {
-        this.showLoadingScreen();
-        
-        Telegram.WebApp.ready();
-        Telegram.WebApp.expand();
-        
-        // ДОБАВЬТЕ ЭТУ ПРОВЕРКУ
-        console.log('Telegram user data:', Telegram.WebApp.initDataUnsafe.user);
-        console.log('Telegram init data:', Telegram.WebApp.initData);
-        
-        if (!Telegram.WebApp.initDataUnsafe.user) {
-            throw new Error('Данные пользователя не получены от Telegram');
-        }
-        
-        await userProfile.init();
-        await telegramStars.init();
-        
-        this.setupEventListeners();
-        
-        setTimeout(() => {
-            this.hideLoadingScreen();
-            this.isLoading = false;
-        }, 3000);
-        
-    } catch (error) {
-        console.error('Ошибка инициализации приложения:', error);
-        this.hideLoadingScreen();
-        
-        // Покажем ошибку пользователю
         Telegram.WebApp.showPopup({
-            title: 'Ошибка',
-            message: 'Не удалось загрузить данные: ' + error.message,
+            title: 'Подарок',
+            message: 'Функция подарков в разработке',
             buttons: [{ type: 'ok' }]
         });
     }
 }
 
+// Инициализация при загрузке DOM
+document.addEventListener('DOMContentLoaded', () => {
+    window.app = new GameWebApp();
+});
