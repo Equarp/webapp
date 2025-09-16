@@ -12,12 +12,13 @@
     <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
 <body>
-    <div id="loading-screen" class="loading-screen">
-        <div class="loading-content">
-            <img src="/assets/loading.gif" alt="Loading" class="loading-image">
-            <p>Загрузка приложения...</p>
-        </div>
+<div id="loading-screen" class="loading-screen">
+    <div class="loading-content">
+        <!-- Заменяем img на div с CSS анимацией -->
+        <div class="loading-image"></div>
+        <p>Загрузка приложения<span class="loading-dots"></span></p>
     </div>
+</div>
 
     <div id="app" class="app hidden">
         <header class="header">
@@ -105,4 +106,5 @@
     <script src="/scripts/profile.js"></script>
     <script src="/scripts/app.js"></script>
 </body>
+
 </html>
