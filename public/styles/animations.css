@@ -15,15 +15,36 @@
     text-align: center;
 }
 
-.loading-circle {
-    width: 60px;
-    height: 60px;
-    border: 4px solid rgba(0, 243, 255, 0.3);
-    border-top: 4px solid var(--neon-blue);
+/* Неоновый спиннер */
+.neon-spinner {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    position: relative;
+}
+
+.neon-spinner::before,
+.neon-spinner::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     border-radius: 50%;
+    border: 3px solid transparent;
+}
+
+.neon-spinner::before {
+    border-top: 3px solid var(--neon-blue);
     animation: spin 1s linear infinite;
-    margin-bottom: 20px;
-    box-shadow: 0 0 15px var(--neon-blue);
+    box-shadow: 0 0 10px var(--neon-blue);
+}
+
+.neon-spinner::after {
+    border-top: 3px solid var(--neon-pink);
+    animation: spin 1.5s linear infinite reverse;
+    box-shadow: 0 0 10px var(--neon-pink);
 }
 
 @keyframes spin {
@@ -31,9 +52,11 @@
     100% { transform: rotate(360deg); }
 }
 
+/* Текст с пульсацией */
 .loading-text {
+    margin-top: 20px;
+    font-size: 1.1rem;
     color: var(--neon-blue);
-    font-size: 16px;
     text-shadow: 0 0 10px var(--neon-blue);
     animation: pulse 2s infinite;
 }
@@ -50,6 +73,7 @@
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 0.7; }
-    50% { opacity: 1; }
+    0% { opacity: 0.7; transform: scale(0.95); }
+    50% { opacity: 1; transform: scale(1.05); }
+    100% { opacity: 0.7; transform: scale(0.95); }
 }
