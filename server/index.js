@@ -19,7 +19,16 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
 // Serve static files from public directory
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(__dirname, '../public'), {
+    maxAge: '1d', // Кэширование на 1 день
+    etag: true,
+    lastModified: true,
+    setHeaders: (res, path) => {
+        if (path.endsWith('.gif')) {
+            res.setHeader('Cache-Control', 'public, max-age=86400');
+        }
+    }
+}));
 
 // API Routes
 app.use('/api', apiRoutes);
@@ -49,5 +58,6 @@ async function startServer() {
     process.exit(1);
   }
 }
+
 
 startServer();
