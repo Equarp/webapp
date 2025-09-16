@@ -16,10 +16,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
 }
 
-/* Круглый лоадер по центру */
+/* Анимированный круглый лоадер */
 .loading-circle {
     width: 60px;
     height: 60px;
@@ -29,19 +28,20 @@
     animation: spin 1s linear infinite;
     margin-bottom: 20px;
     box-shadow: 0 0 15px var(--neon-blue);
+    position: relative;
 }
 
-/* Дополнительный неоновый эффект */
+/* Дополнительное неоновое кольцо */
 .loading-circle::after {
     content: '';
     position: absolute;
-    top: -5px;
-    left: -5px;
-    right: -5px;
-    bottom: -5px;
-    border-radius: 50%;
+    top: -8px;
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
     border: 2px solid transparent;
     border-top: 2px solid var(--neon-pink);
+    border-radius: 50%;
     animation: spin 1.5s linear infinite reverse;
     filter: blur(2px);
 }
@@ -56,9 +56,60 @@
     font-size: 16px;
     text-shadow: 0 0 10px var(--neon-blue);
     animation: pulse 2s infinite;
+    margin-top: 10px;
+}
+
+.loading-dots::after {
+    content: '';
+    animation: dots 1.5s infinite;
+}
+
+@keyframes dots {
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60%, 100% { content: '...'; }
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 0.7; }
-    50% { opacity: 1; }
+    0%, 100% { 
+        opacity: 0.7; 
+        transform: scale(0.95);
+    }
+    50% { 
+        opacity: 1; 
+        transform: scale(1.05);
+    }
+}
+
+/* Анимация появления контента */
+.slide-in {
+    animation: slideIn 0.5s ease-out forwards;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Неоновое свечение для активных элементов */
+.neon-glow {
+    animation: glow 2s infinite;
+}
+
+@keyframes glow {
+    0% { 
+        box-shadow: 0 0 5px var(--neon-blue);
+    }
+    50% { 
+        box-shadow: 0 0 20px var(--neon-blue), 0 0 30px var(--neon-blue);
+    }
+    100% { 
+        box-shadow: 0 0 5px var(--neon-blue);
+    }
 }
