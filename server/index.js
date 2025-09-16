@@ -59,5 +59,11 @@ async function startServer() {
   }
 }
 
+app.use('/api/user', (req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+});
 
 startServer();
+
