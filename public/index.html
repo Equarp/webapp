@@ -105,15 +105,29 @@
     <script src="/scripts/stars.js"></script>
     <script src="/scripts/profile.js"></script>
     <script src="/scripts/app.js"></script>
-</body>
 
 <script>
-// Отладочная информация
-console.log('=== TELEGRAM DEBUG INFO ===');
+// Расширенная отладочная информация
+console.log('=== 🐛 TELEGRAM DEBUG INFO ===');
 console.log('Init Data:', Telegram.WebApp.initData);
-console.log('User Data:', Telegram.WebApp.initDataUnsafe.user);
+console.log('User Data:', JSON.stringify(Telegram.WebApp.initDataUnsafe.user, null, 2));
 console.log('Platform:', Telegram.WebApp.platform);
 console.log('Version:', Telegram.WebApp.version);
+console.log('Theme:', Telegram.WebApp.themeParams);
+console.log('Color Scheme:', Telegram.WebApp.colorScheme);
+
+// Проверяем наличие элементов DOM
+document.addEventListener('DOMContentLoaded', () => {
+    console.log('=== 🎯 DOM ELEMENTS CHECK ===');
+    console.log('Profile elements:', {
+        avatar: document.getElementById('user-avatar'),
+        name: document.getElementById('user-name'),
+        tonBalance: document.getElementById('ton-balance'),
+        starsBalance: document.getElementById('stars-balance')
+    });
+});
 </script>
+</body>
 
 </html>
+
