@@ -5,11 +5,13 @@ class TelegramStars {
 
     async init(userId) {
         try {
-            const balances = await db.getUserBalance(userId);
-            this.balance = balances.stars || 0;
-            this.updateUI();
+            if (window.db) {
+                const balances = await window.db.getUserBalance(userId);
+                this.balance = balances.stars || 0;
+                this.updateUI();
+            }
         } catch (error) {
-            console.warn('Stars init failed:', error);
+            console.warn('Ошибка загрузки Stars:', error);
             this.balance = 0;
             this.updateUI();
         }
