@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game WebApp</title>
+    <meta name="telegram-web-app-bot-api-version" content="9.0">
+    <link rel="stylesheet" href="/styles/main.css">
+    <link rel="stylesheet" href="/styles/animations.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://unpkg.com/ton-core/dist/ton-core.min.js"></script>
+    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
+</head>
+<body>
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <img src="/assets/loading.gif" alt="Loading" class="loading-image">
+            <p>Загрузка приложения...</p>
+        </div>
+    </div>
+
+    <div id="app" class="app hidden">
+        <header class="header">
+            <h1 class="app-title">Game WebApp</h1>
+        </header>
+
+        <main class="main-content">
+            <div id="home-page" class="page active">
+                <div class="welcome-section">
+                    <h2>Добро пожаловать!</h2>
+                    <p>Игровое приложение с интеграцией TON и Telegram Stars</p>
+                </div>
+                
+                <div class="balance-cards">
+                    <div class="balance-card ton-balance">
+                        <h3>TON Баланс</h3>
+                        <p id="ton-balance">0 TON</p>
+                    </div>
+                    <div class="balance-card stars-balance">
+                        <h3>Stars Баланс</h3>
+                        <p id="stars-balance">0 Stars</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="profile-page" class="page">
+                <div class="profile-header">
+                    <img id="user-avatar" src="" alt="Avatar" class="profile-avatar">
+                    <h2 id="user-name"></h2>
+                </div>
+                
+                <div class="wallet-section">
+                    <h3>Управление балансом</h3>
+                    <div class="balance-actions">
+                        <button id="deposit-ton" class="btn btn-primary">Пополнить TON</button>
+                        <button id="withdraw-ton" class="btn btn-secondary">Вывести TON</button>
+                        <button id="deposit-stars" class="btn btn-primary">Пополнить Stars</button>
+                        <button id="withdraw-stars" class="btn btn-secondary">Вывести Stars</button>
+                    </div>
+                    
+                    <div class="gift-section">
+                        <h3>Получить подарок</h3>
+                        <button id="request-gift" class="btn btn-special">Запросить подарок</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="inventory-page" class="page">
+                <h2>Ваш инвентарь</h2>
+                <div id="inventory-items" class="inventory-grid">
+                    <div class="inventory-item">Предмет 1</div>
+                    <div class="inventory-item">Предмет 2</div>
+                    <div class="inventory-item">Предмет 3</div>
+                </div>
+            </div>
+        </main>
+
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-page="home-page">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Главная</span>
+            </button>
+            <button class="nav-btn" data-page="inventory-page">
+                <span class="nav-icon">🎒</span>
+                <span class="nav-label">Инвентарь</span>
+            </button>
+            <button class="nav-btn" data-page="profile-page">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">Профиль</span>
+            </button>
+        </nav>
+
+        <div id="ton-connect-modal" class="modal hidden">
+            <div class="modal-content">
+                <span class="close">&times;</span>
+                <div id="ton-connect-ui"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/config/constants.js"></script>
+    <script src="/scripts/database.js"></script>
+    <script src="/scripts/wallet.js"></script>
+    <script src="/scripts/stars.js"></script>
+    <script src="/scripts/profile.js"></script>
+    <script src="/scripts/app.js"></script>
+</body>
+</html>
