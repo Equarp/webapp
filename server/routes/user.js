@@ -1,39 +1,12 @@
 const express = require('express');
 const { pool } = require('../database');
-const crypto = require('crypto');
 const router = express.Router();
 
-// Валидация данных от Telegram
-function validateTelegramData(initData) {
-    if (!initData) return false;
-    
-    try {
-        const params = new URLSearchParams(initData);
-        const hash = params.get('hash');
-        if (!hash) return false;
-        
-        // Простая проверка - в продакшене нужно реализовать полную валидацию
-        return true;
-    } catch (error) {
-        console.error('Error validating Telegram data:', error);
-        return false;
-    }
-}
-
-// Создание/получение пользователя
 router.post('/', async (req, res) => {
     try {
-        const { telegramId, firstName, lastName, username, photoUrl, initData } = req.body;
+        const { telegramId, firstName, lastName, username, photoUrl, languageCode } = req.body;
 
-        console.log('Received user data:', {
-            telegramId, firstName, lastName, username, photoUrl
-        });
-
-        // Проверяем валидность данных
-        if (!validateTelegramData(initData)) {
-            console.warn('Invalid Telegram data received');
-            // Но все равно продолжаем, чтобы приложение работало
-        }
+        console.log('Creating user:', { telegramId, firstName, username });
 
         if (!telegramId) {
             return res.status(400).json({ error: 'Telegram ID is required' });
@@ -49,9 +22,10 @@ router.post('/', async (req, res) => {
             // Обновляем существующего пользователя
             await pool.query(
                 `UPDATE users 
-                 SET first_name = $1, last_name = $2, username = $3, photo_url = $4, updated_at = CURRENT_TIMESTAMP 
-                 WHERE telegram_id = $5`,
-                [firstName, lastName, username, photoUrl, telegramId]
+                 SET first_name = $1, last_name = $2, username = $3, 
+                     photo_url = $4, language_code = $5, updated_at = CURRENT_TIMESTAMP 
+                 WHERE telegram_id = $6`,
+                [firstName, lastName, username, photoUrl, languageCode, telegramId]
             );
 
             const user = await pool.query(
@@ -64,9 +38,9 @@ router.post('/', async (req, res) => {
 
         // Создаем нового пользователя
         const newUser = await pool.query(
-            `INSERT INTO users (telegram_id, first_name, last_name, username, photo_url) 
-             VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-            [telegramId, firstName, lastName, username, photoUrl]
+            `INSERT INTO users (telegram_id, first_name, last_name, username, photo_url, language_code) 
+             VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`,
+            [telegramId, firstName, lastName, username, photoUrl, languageCode]
         );
 
         // Создаем запись баланса
@@ -75,7 +49,6 @@ router.post('/', async (req, res) => {
             [newUser.rows[0].id]
         );
 
-        console.log('New user created:', newUser.rows[0]);
         res.json(newUser.rows[0]);
 
     } catch (error) {
@@ -84,7 +57,6 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Получение пользователя по ID
 router.get('/:userId', async (req, res) => {
     try {
         const { userId } = req.params;
