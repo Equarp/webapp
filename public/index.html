@@ -10,12 +10,12 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-<div id="loading-screen" class="loading-screen">
-    <div class="loading-content">
-        <div class="neon-spinner"></div>
-        <p class="loading-text">Loading<span class="loading-dots"></span></p>
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-circle"></div>
+            <p class="loading-text">Загрузка приложения<span class="loading-dots"></span></p>
+        </div>
     </div>
-</div>
 
     <div id="app" class="app hidden">
         <header class="header">
@@ -23,6 +23,7 @@
         </header>
 
         <main class="main-content">
+            <!-- Главная страница -->
             <div id="home-page" class="page">
                 <div class="welcome-section">
                     <h2>Добро пожаловать!</h2>
@@ -41,6 +42,7 @@
                 </div>
             </div>
 
+            <!-- Профиль -->
             <div id="profile-page" class="page">
                 <div class="profile-header">
                     <img id="user-avatar" src="" alt="Avatar" class="profile-avatar">
@@ -63,6 +65,7 @@
                 </div>
             </div>
 
+            <!-- Инвентарь -->
             <div id="inventory-page" class="page">
                 <h2>Ваш инвентарь</h2>
                 <div id="inventory-items" class="inventory-grid">
@@ -73,16 +76,17 @@
             </div>
         </main>
 
+        <!-- Навигация -->
         <nav class="bottom-nav">
-            <button class="nav-btn active" data-page="home-page">
+            <button class="nav-btn active" data-page="home">
                 <span class="nav-icon">🏠</span>
                 <span class="nav-label">Главная</span>
             </button>
-            <button class="nav-btn" data-page="inventory-page">
+            <button class="nav-btn" data-page="inventory">
                 <span class="nav-icon">🎒</span>
                 <span class="nav-label">Инвентарь</span>
             </button>
-            <button class="nav-btn" data-page="profile-page">
+            <button class="nav-btn" data-page="profile">
                 <span class="nav-icon">👤</span>
                 <span class="nav-label">Профиль</span>
             </button>
@@ -90,17 +94,5 @@
     </div>
 
     <script src="/scripts/app.js"></script>
-    <script src="/scripts/profile.js"></script>
-    <script src="/scripts/stars.js"></script>
-    <script src="/scripts/database.js"></script>
-    
-<div class="loading-circle">
-    <div class="loading-circle-inner"></div>
-    <div class="loading-circle-outer"></div>
-</div>
-
 </body>
 </html>
-
-
-
