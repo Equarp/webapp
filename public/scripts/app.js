@@ -5,49 +5,48 @@ class GameWebApp {
         this.init();
     }
 
-    async init() {
-        try {
-            this.showLoadingScreen();
-            
-            // Инициализируем Telegram WebApp
-            Telegram.WebApp.ready();
-            Telegram.WebApp.expand();
-            
-            // Ждем немного для инициализации Telegram
-            await new Promise(resolve => setTimeout(resolve, 500));
-            
-            // Получаем данные пользователя из Telegram
-            const telegramUser = Telegram.WebApp.initDataUnsafe.user;
-            console.log('🔍 Telegram user data:', telegramUser);
-            
-            if (!telegramUser || !telegramUser.id) {
-                throw new Error('Данные пользователя Telegram не получены. Проверьте настройки бота.');
-            }
-            
-            // НЕМЕДЛЕННО показываем данные из Telegram
-            userProfile.updateProfileUI(telegramUser);
-            
-            // Инициализируем остальные модули
-            await Promise.all([
-                userProfile.init(telegramUser),
-                telegramStars.init(telegramUser.id)
-            ]);
-            
-            this.setupEventListeners();
-            
-            // Скрываем загрузку
-            setTimeout(() => {
-                this.hideLoadingScreen();
-                this.isLoading = false;
-                console.log('✅ App initialized successfully');
-            }, 1500);
-            
-        } catch (error) {
-            console.error('❌ App initialization error:', error);
-            this.showError(error.message);
-            this.hideLoadingScreen();
+async init() {
+    try {
+        this.showLoadingScreen();
+        
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+        
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const telegramUser = Telegram.WebApp.initDataUnsafe.user;
+        console.log('🔍 Telegram user data:', telegramUser);
+        
+        if (!telegramUser || !telegramUser.id) {
+            throw new Error('Данные пользователя Telegram не получены');
         }
+        
+        // Немедленно показываем данные
+        userProfile.updateProfileUI(telegramUser);
+        
+        // Инициализируем модули
+        await Promise.all([
+            userProfile.init(telegramUser),
+            telegramStars.init(telegramUser.id)
+        ]);
+        
+        this.setupEventListeners();
+        
+        // Инициализируем активную кнопку навигации
+        this.navigateTo('home-page');
+        
+        setTimeout(() => {
+            this.hideLoadingScreen();
+            this.isLoading = false;
+            console.log('✅ App initialized successfully');
+        }, 1500);
+        
+    } catch (error) {
+        console.error('❌ App initialization error:', error);
+        this.showError(error.message);
+        this.hideLoadingScreen();
     }
+}
 
 showLoadingScreen() {
     const loadingScreen = document.getElementById('loading-screen');
@@ -174,5 +173,6 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 DOM loaded, initializing app...');
     window.app = new GameWebApp();
 });
+
 
 
