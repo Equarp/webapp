@@ -120,28 +120,35 @@ class GameWebApp {
         });
     }
 
-    navigateTo(pageId) {
-        // Скрываем все страницы
-        document.querySelectorAll('.page').forEach(page => {
-            page.classList.remove('active');
-        });
+navigateTo(pageId) {
+    // Скрываем все страницы
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    
+    // Показываем выбранную страницу с анимацией
+    const targetPage = document.getElementById(pageId);
+    if (targetPage) {
+        targetPage.classList.add('active');
+        targetPage.classList.add('slide-in');
+        this.currentPage = pageId;
         
-        // Показываем выбранную страницу
-        const targetPage = document.getElementById(pageId);
-        if (targetPage) {
-            targetPage.classList.add('active');
-            this.currentPage = pageId;
-        }
-        
-        // Обновляем активную кнопку навигации
-        document.querySelectorAll('.nav-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        const activeBtn = document.querySelector(`.nav-btn[data-page="${pageId}"]`);
-        if (activeBtn) {
-            activeBtn.classList.add('active');
-        }
+        // Убираем класс анимации после завершения
+        setTimeout(() => {
+            targetPage.classList.remove('slide-in');
+        }, 500);
+    }
+    
+    // Обновляем активную кнопку навигации
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('active');
+        btn.classList.remove('neon-glow');
+    });
+    
+    const activeBtn = document.querySelector(`.nav-btn[data-page="${pageId}"]`);
+    if (activeBtn) {
+        activeBtn.classList.add('active');
+        activeBtn.classList.add('neon-glow');
     }
 }
 
@@ -150,3 +157,4 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 DOM loaded, initializing app...');
     window.app = new GameWebApp();
 });
+
