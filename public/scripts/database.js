@@ -3,9 +3,20 @@ class Database {
         this.baseUrl = window.location.origin;
     }
 
+    async getUserBalance(userId) {
+        try {
+            const response = await fetch(`${this.baseUrl}/api/balance/${userId}`);
+            if (!response.ok) return { ton: 0, stars: 0 };
+            return await response.json();
+        } catch (error) {
+            console.warn('Ошибка получения баланса:', error);
+            return { ton: 0, stars: 0 };
+        }
+    }
+
     async initUser(telegramUser) {
         try {
-            const response = await fetch('/api/user', {
+            const response = await fetch(`${this.baseUrl}/api/user`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -16,37 +27,17 @@ class Database {
                     lastName: telegramUser.last_name,
                     username: telegramUser.username,
                     photoUrl: telegramUser.photo_url,
-                    languageCode: telegramUser.language_code,
                     initData: Telegram.WebApp.initData
                 })
             });
 
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            if (response.ok) {
+                return await response.json();
             }
-
-            return await response.json();
+            return null;
         } catch (error) {
-            console.warn('Database initUser failed:', error);
-            // Возвращаем данные из Telegram как fallback
-            return {
-                id: telegramUser.id,
-                firstName: telegramUser.first_name,
-                lastName: telegramUser.last_name,
-                username: telegramUser.username,
-                photoUrl: telegramUser.photo_url
-            };
-        }
-    }
-
-    async getUserBalance(userId) {
-        try {
-            const response = await fetch(`/api/balance/${userId}`);
-            if (!response.ok) return { ton: 0, stars: 0 };
-            return await response.json();
-        } catch (error) {
-            console.warn('getUserBalance failed:', error);
-            return { ton: 0, stars: 0 };
+            console.warn('Ошибка инициализации пользователя:', error);
+            return null;
         }
     }
 }
