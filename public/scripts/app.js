@@ -49,21 +49,38 @@ class GameWebApp {
         }
     }
 
-    showLoadingScreen() {
-        const loadingScreen = document.getElementById('loading-screen');
-        const app = document.getElementById('app');
-        
-        if (loadingScreen) loadingScreen.classList.remove('hidden');
-        if (app) app.classList.add('hidden');
+showLoadingScreen() {
+    const loadingScreen = document.getElementById('loading-screen');
+    const app = document.getElementById('app');
+    
+    if (loadingScreen) {
+        loadingScreen.classList.remove('hidden');
+        loadingScreen.style.display = 'flex';
     }
+    if (app) {
+        app.classList.add('hidden');
+        app.style.display = 'none';
+    }
+}
 
-    hideLoadingScreen() {
-        const loadingScreen = document.getElementById('loading-screen');
-        const app = document.getElementById('app');
-        
-        if (loadingScreen) loadingScreen.classList.add('hidden');
-        if (app) app.classList.remove('hidden');
+hideLoadingScreen() {
+    const loadingScreen = document.getElementById('loading-screen');
+    const app = document.getElementById('app');
+    
+    if (loadingScreen) {
+        loadingScreen.classList.add('hidden');
+        // Не скрываем сразу, даем анимации завершиться
+        setTimeout(() => {
+            loadingScreen.style.display = 'none';
+        }, 500);
     }
+    if (app) {
+        app.classList.remove('hidden');
+        app.style.display = 'block';
+        // Добавляем анимацию появления
+        app.classList.add('slide-in');
+    }
+}
 
     showError(message) {
         // Создаем элемент для отображения ошибки
@@ -157,4 +174,5 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('🚀 DOM loaded, initializing app...');
     window.app = new GameWebApp();
 });
+
 
