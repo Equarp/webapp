@@ -5,49 +5,52 @@ class GameWebApp {
         this.init();
     }
 
-    async init() {
-        try {
-            this.showLoadingScreen();
-            
-            Telegram.WebApp.ready();
-            Telegram.WebApp.expand();
-            
+async init() {
+    try {
+        this.showLoadingScreen();
+        
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+        
+        // Ждем немного для загрузки данных Telegram
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const telegramUser = Telegram.WebApp.initDataUnsafe.user;
+        
+        if (!telegramUser) {
+            console.warn('Telegram user data not available, using fallback');
+            // Используем данные из localStorage или показываем форму входа
+            this.initializeWithFallbackData();
+        } else {
             await userProfile.init();
             await telegramStars.init();
-            
-            this.setupEventListeners();
-            
-            setTimeout(() => {
-                this.hideLoadingScreen();
-                this.isLoading = false;
-            }, 3000);
-            
-        } catch (error) {
-            console.error('Ошибка инициализации приложения:', error);
+        }
+        
+        this.setupEventListeners();
+        
+        setTimeout(() => {
             this.hideLoadingScreen();
-        }
+            this.isLoading = false;
+        }, 3000);
+        
+    } catch (error) {
+        console.error('Ошибка инициализации приложения:', error);
+        this.initializeWithFallbackData();
+        this.hideLoadingScreen();
     }
-
-showLoadingScreen() {
-    const loadingScreen = document.getElementById('loading-screen');
-    const app = document.getElementById('app');
-    
-    if (loadingScreen) loadingScreen.classList.remove('hidden');
-    if (app) app.classList.add('hidden');
-    
-    // Резервная проверка - если GIF не загрузится
-    setTimeout(() => {
-        const loadingImage = document.querySelector('.loading-image');
-        if (loadingImage && loadingImage.complete && loadingImage.naturalHeight === 0) {
-            // Если изображение не загрузилось, переключаем на CSS анимацию
-            loadingImage.style.display = 'none';
-            const cssLoader = document.createElement('div');
-            cssLoader.className = 'loading-image';
-            loadingImage.parentNode.insertBefore(cssLoader, loadingImage);
-        }
-    }, 1000);
 }
 
+initializeWithFallbackData() {
+    // Заглушка для тестирования
+    const fallbackUser = {
+        firstName: 'Тестовый',
+        lastName: 'Пользователь',
+        photoUrl: '/assets/images/default-avatar.png'
+    };
+    
+    document.getElementById('user-name').textContent = `${fallbackUser.firstName} ${fallbackUser.lastName}`;
+    document.getElementById('user-avatar').src = fallbackUser.photoUrl;
+}
     hideLoadingScreen() {
         const loadingScreen = document.getElementById('loading-screen');
         const app = document.getElementById('app');
@@ -227,3 +230,4 @@ async init() {
         });
     }
 }
+
