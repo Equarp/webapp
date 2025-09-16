@@ -28,13 +28,25 @@ class GameWebApp {
         }
     }
 
-    showLoadingScreen() {
-        const loadingScreen = document.getElementById('loading-screen');
-        const app = document.getElementById('app');
-        
-        if (loadingScreen) loadingScreen.classList.remove('hidden');
-        if (app) app.classList.add('hidden');
-    }
+showLoadingScreen() {
+    const loadingScreen = document.getElementById('loading-screen');
+    const app = document.getElementById('app');
+    
+    if (loadingScreen) loadingScreen.classList.remove('hidden');
+    if (app) app.classList.add('hidden');
+    
+    // Резервная проверка - если GIF не загрузится
+    setTimeout(() => {
+        const loadingImage = document.querySelector('.loading-image');
+        if (loadingImage && loadingImage.complete && loadingImage.naturalHeight === 0) {
+            // Если изображение не загрузилось, переключаем на CSS анимацию
+            loadingImage.style.display = 'none';
+            const cssLoader = document.createElement('div');
+            cssLoader.className = 'loading-image';
+            loadingImage.parentNode.insertBefore(cssLoader, loadingImage);
+        }
+    }, 1000);
+}
 
     hideLoadingScreen() {
         const loadingScreen = document.getElementById('loading-screen');
@@ -175,4 +187,5 @@ class GameWebApp {
 
 document.addEventListener('DOMContentLoaded', () => {
     new GameWebApp();
+
 });
