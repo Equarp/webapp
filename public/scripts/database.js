@@ -1,50 +1,54 @@
 class Database {
     constructor() {
-        this.baseUrl = CONFIG.API.BASE_URL;
-        console.log('Database base URL:', this.baseUrl);
+        this.baseUrl = window.location.origin;
     }
 
-    async initUser(telegramData) {
+    async initUser(telegramUser) {
         try {
-            console.log('Initializing user with data:', {
-                id: telegramData.id,
-                name: `${telegramData.first_name} ${telegramData.last_name}`
-            });
-
-            const response = await fetch(`${this.baseUrl}${CONFIG.API.ENDPOINTS.USER}`, {
+            const response = await fetch('/api/user', {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    telegramId: telegramData.id,
-                    firstName: telegramData.first_name,
-                    lastName: telegramData.last_name,
-                    username: telegramData.username,
-                    photoUrl: telegramData.photo_url,
+                    telegramId: telegramUser.id,
+                    firstName: telegramUser.first_name,
+                    lastName: telegramUser.last_name,
+                    username: telegramUser.username,
+                    photoUrl: telegramUser.photo_url,
+                    languageCode: telegramUser.language_code,
                     initData: Telegram.WebApp.initData
                 })
             });
-            
+
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            
-            const result = await response.json();
-            console.log('User initialization result:', result);
-            return result;
-            
+
+            return await response.json();
         } catch (error) {
-            console.error('Ошибка инициализации пользователя:', error);
-            // Возвращаем заглушку вместо null
+            console.warn('Database initUser failed:', error);
+            // Возвращаем данные из Telegram как fallback
             return {
-                id: telegramData.id,
-                firstName: telegramData.first_name,
-                lastName: telegramData.last_name,
-                username: telegramData.username,
-                photoUrl: telegramData.photo_url
+                id: telegramUser.id,
+                firstName: telegramUser.first_name,
+                lastName: telegramUser.last_name,
+                username: telegramUser.username,
+                photoUrl: telegramUser.photo_url
             };
         }
     }
-    // ... остальные методы
+
+    async getUserBalance(userId) {
+        try {
+            const response = await fetch(`/api/balance/${userId}`);
+            if (!response.ok) return { ton: 0, stars: 0 };
+            return await response.json();
+        } catch (error) {
+            console.warn('getUserBalance failed:', error);
+            return { ton: 0, stars: 0 };
+        }
+    }
 }
+
+window.db = new Database();
