@@ -22,12 +22,15 @@ class GameWebApp {
             }
             
             // Немедленно показываем данные
-            userProfile.updateProfileUI(telegramUser);
+            this.updateProfileUI(telegramUser);
             
-            await Promise.all([
-                userProfile.init(telegramUser),
-                telegramStars.init(telegramUser.id)
-            ]);
+            // Инициализируем профиль и Stars
+            if (window.userProfile && window.telegramStars) {
+                await Promise.all([
+                    window.userProfile.init(telegramUser),
+                    window.telegramStars.init(telegramUser.id)
+                ]);
+            }
             
             this.setupEventListeners();
             
@@ -44,6 +47,39 @@ class GameWebApp {
             console.error('App initialization error:', error);
             this.showError(error.message);
             this.hideLoadingScreen();
+        }
+    }
+
+    updateProfileUI(telegramUser) {
+        const userNameElement = document.getElementById('user-name');
+        const userAvatarElement = document.getElementById('user-avatar');
+        
+        if (userNameElement && telegramUser) {
+            const name = `${telegramUser.first_name || ''} ${telegramUser.last_name || ''}`.trim();
+            userNameElement.textContent = name || 'Пользователь';
+        }
+        
+        if (userAvatarElement && telegramUser.photo_url) {
+            userAvatarElement.src = telegramUser.photo_url;
+            userAvatarElement.onerror = () => {
+                this.setFallbackAvatar(telegramUser.first_name, telegramUser.last_name);
+            };
+        } else if (userAvatarElement) {
+            this.setFallbackAvatar(telegramUser.first_name, telegramUser.last_name);
+        }
+    }
+
+    setFallbackAvatar(firstName, lastName) {
+        const userAvatarElement = document.getElementById('user-avatar');
+        if (userAvatarElement) {
+            const first = firstName ? firstName[0] : '';
+            const last = lastName ? lastName[0] : '';
+            const initials = (first + last).toUpperCase() || 'U';
+            
+            const colors = ['#00f3ff', '#ff00ff', '#bd00ff'];
+            const color = colors[initials.charCodeAt(0) % colors.length];
+            
+            userAvatarElement.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="${color}20" rx="40"/><text x="40" y="45" text-anchor="middle" fill="${color}" font-family="Arial" font-size="30" font-weight="bold">${initials}</text></svg>`;
         }
     }
 
