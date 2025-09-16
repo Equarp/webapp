@@ -8,17 +8,14 @@
     <link rel="stylesheet" href="/styles/main.css">
     <link rel="stylesheet" href="/styles/animations.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://unpkg.com/ton-core/dist/ton-core.min.js"></script>
-    <script src="https://unpkg.com/@tonconnect/ui@latest/dist/tonconnect-ui.min.js"></script>
 </head>
 <body>
-<div id="loading-screen" class="loading-screen">
-    <div class="loading-content">
-        <!-- Заменяем img на div с CSS анимацией -->
-        <div class="loading-image"></div>
-        <p>Loading<span class="loading-dots"></span></p>
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-circle"></div>
+            <p class="loading-text">Загрузка приложения<span class="loading-dots"></span></p>
+        </div>
     </div>
-</div>
 
     <div id="app" class="app hidden">
         <header class="header">
@@ -26,7 +23,7 @@
         </header>
 
         <main class="main-content">
-            <div id="home-page" class="page">
+            <div id="home-page" class="page active">
                 <div class="welcome-section">
                     <h2>Добро пожаловать!</h2>
                     <p>Игровое приложение с интеграцией TON и Telegram Stars</p>
@@ -47,7 +44,7 @@
             <div id="profile-page" class="page">
                 <div class="profile-header">
                     <img id="user-avatar" src="" alt="Avatar" class="profile-avatar">
-                    <h2 id="user-name"></h2>
+                    <h2 id="user-name">Пользователь</h2>
                 </div>
                 
                 <div class="wallet-section">
@@ -76,60 +73,25 @@
             </div>
         </main>
 
-<nav class="bottom-nav">
-    <button class="nav-btn" data-page="home-page">
-        <span class="nav-icon">🏠</span>
-        <span class="nav-label">Главная</span>
-    </button>
-    <button class="nav-btn" data-page="inventory-page">
-        <span class="nav-icon">🎒</span>
-        <span class="nav-label">Инвентарь</span>
-    </button>
-    <button class="nav-btn" data-page="profile-page">
-        <span class="nav-icon">👤</span>
-        <span class="nav-label">Профиль</span>
-    </button>
-</nav>
-
-        <div id="ton-connect-modal" class="modal hidden">
-            <div class="modal-content">
-                <span class="close">&times;</span>
-                <div id="ton-connect-ui"></div>
-            </div>
-        </div>
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-page="home-page">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Главная</span>
+            </button>
+            <button class="nav-btn" data-page="inventory-page">
+                <span class="nav-icon">🎒</span>
+                <span class="nav-label">Инвентарь</span>
+            </button>
+            <button class="nav-btn" data-page="profile-page">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">Профиль</span>
+            </button>
+        </nav>
     </div>
 
-    <script src="/config/constants.js"></script>
-    <script src="/scripts/database.js"></script>
-    <script src="/scripts/wallet.js"></script>
-    <script src="/scripts/stars.js"></script>
-    <script src="/scripts/profile.js"></script>
     <script src="/scripts/app.js"></script>
-
-<script>
-// Расширенная отладочная информация
-console.log('=== 🐛 TELEGRAM DEBUG INFO ===');
-console.log('Init Data:', Telegram.WebApp.initData);
-console.log('User Data:', JSON.stringify(Telegram.WebApp.initDataUnsafe.user, null, 2));
-console.log('Platform:', Telegram.WebApp.platform);
-console.log('Version:', Telegram.WebApp.version);
-console.log('Theme:', Telegram.WebApp.themeParams);
-console.log('Color Scheme:', Telegram.WebApp.colorScheme);
-
-// Проверяем наличие элементов DOM
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('=== 🎯 DOM ELEMENTS CHECK ===');
-    console.log('Profile elements:', {
-        avatar: document.getElementById('user-avatar'),
-        name: document.getElementById('user-name'),
-        tonBalance: document.getElementById('ton-balance'),
-        starsBalance: document.getElementById('stars-balance')
-    });
-});
-</script>
+    <script src="/scripts/profile.js"></script>
+    <script src="/scripts/stars.js"></script>
+    <script src="/scripts/database.js"></script>
 </body>
-
 </html>
-
-
-
