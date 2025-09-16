@@ -122,6 +122,8 @@ body {
     margin-bottom: 10px;
     border: 2px solid var(--neon-blue);
     box-shadow: 0 0 10px var(--neon-blue);
+    object-fit: cover; /* Важно для корректного отображения */
+    background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink));
 }
 
 .wallet-section {
@@ -279,4 +281,5 @@ body {
 
 .neon-glow {
     animation: glow 2s infinite;
+
 }
