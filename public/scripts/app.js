@@ -290,3 +290,17 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
         window.app = new GameWebApp();
     }, 100);
 }
+
+// Аварийный выход из загрузки через 10 секунд
+setTimeout(() => {
+    const loadingScreen = document.getElementById('loading-screen');
+    const app = document.getElementById('app');
+    
+    if (loadingScreen && loadingScreen.style.display !== 'none') {
+        console.warn('Force hiding loading screen after timeout');
+        loadingScreen.style.display = 'none';
+    }
+    if (app && app.style.display === 'none') {
+        app.style.display = 'block';
+    }
+}, 10000);
