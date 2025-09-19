@@ -185,3 +185,88 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('DOM loaded, starting app...');
     window.app = new GameWebApp();
 });
+
+class GameWebApp {
+    constructor() {
+        this.currentPage = 'home';
+        this.init();
+    }
+
+    async init() {
+        try {
+            // Блокировка масштабирования
+            this.disableZoom();
+            
+            this.showLoadingScreen();
+            
+            Telegram.WebApp.ready();
+            Telegram.WebApp.expand();
+            
+            await new Promise(resolve => setTimeout(resolve, 300));
+            
+            const telegramUser = Telegram.WebApp.initDataUnsafe.user;
+            console.log('Telegram User:', telegramUser);
+            
+            if (!telegramUser || !telegramUser.id) {
+                throw new Error('Данные пользователя не получены');
+            }
+            
+            this.updateUserProfile(telegramUser);
+            this.initializeNavigation();
+            this.setupEventListeners();
+            
+            setTimeout(() => {
+                this.hideLoadingScreen();
+                console.log('App initialized successfully');
+            }, 1500);
+            
+        } catch (error) {
+            console.error('Initialization error:', error);
+            this.showError(error.message);
+            this.hideLoadingScreen();
+        }
+    }
+
+    disableZoom() {
+        // Блокировка жестов масштабирования
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        document.addEventListener('gesturestart', function(event) {
+            event.preventDefault();
+        });
+
+        document.addEventListener('gesturechange', function(event) {
+            event.preventDefault();
+        });
+
+        document.addEventListener('gestureend', function(event) {
+            event.preventDefault();
+        });
+
+        // Блокировка двойного тапа для масштабирования
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, { passive: false });
+
+        // Блокировка скролла с двумя пальцами
+        document.addEventListener('wheel', function(event) {
+            if (event.ctrlKey) {
+                event.preventDefault();
+            }
+        }, { passive: false });
+
+        console.log('Zoom and scale disabled');
+    }
+
+    // остальные методы...
+}
+});
