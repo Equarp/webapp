@@ -1,140 +1,212 @@
 class GameWebApp {
     constructor() {
-        console.log('🚀 App constructor called');
+        this.currentPage = 'home';
+        this.isLoading = true;
         this.init();
     }
 
     async init() {
-        console.log('🔄 Initialization started');
-        
         try {
-            // НЕМЕДЛЕННО показываем что приложение запускается
+            console.log('🚀 Starting application...');
+            
+            // Показываем экран загрузки
             this.showLoadingScreen();
             
-            // Даем время на отрисовку загрузки
-            await new Promise(resolve => setTimeout(resolve, 100));
-            
-            // Простейшая инициализация Telegram
-            console.log('📱 Initializing Telegram...');
-            
-            if (typeof Telegram === 'undefined') {
-                throw new Error('Telegram WebApp not loaded');
-            }
-            
+            // Инициализация Telegram WebApp
             Telegram.WebApp.ready();
-            Telegram.WebApp.expand();
-            console.log('✅ Telegram expanded to fullscreen');
+            Telegram.WebApp.expand(); // Полный экран
             
-            // Ждем немного
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // Ждем немного для стабилизации
+            await new Promise(resolve => setTimeout(resolve, 300));
             
-            // Проверяем данные пользователя
-            const userData = Telegram.WebApp.initDataUnsafe.user;
-            console.log('👤 User data:', userData);
+            // Получаем данные пользователя
+            const telegramUser = Telegram.WebApp.initDataUnsafe.user;
+            console.log('Telegram User:', telegramUser);
             
-            if (userData) {
-                this.updateUserProfile(userData);
+            if (!telegramUser || !telegramUser.id) {
+                throw new Error('Данные пользователя не получены');
             }
             
-            // Базовая навигация
-            this.setupBasicNavigation();
+            // Обновляем UI
+            this.updateUserProfile(telegramUser);
+            
+            // Инициализируем навигацию
+            this.initializeNavigation();
+            
+            // Настраиваем обработчики
+            this.setupEventListeners();
             
             // Скрываем загрузку через 2 секунды
             setTimeout(() => {
-                console.log('🔄 Hiding loading screen');
                 this.hideLoadingScreen();
+                this.isLoading = false;
+                console.log('✅ Application initialized successfully');
             }, 2000);
             
         } catch (error) {
-            console.error('❌ Init error:', error);
-            // ВСЕГДА скрываем загрузку при ошибке
+            console.error('❌ Initialization error:', error);
             this.hideLoadingScreen();
+            this.showError(error.message);
         }
     }
 
-    updateUserProfile(userData) {
-        try {
-            const nameElement = document.getElementById('user-name');
-            const avatarElement = document.getElementById('user-avatar');
-            
-            if (nameElement) {
-                nameElement.textContent = userData.first_name || 'User';
+    updateUserProfile(telegramUser) {
+        const userNameElement = document.getElementById('user-name');
+        const userAvatarElement = document.getElementById('user-avatar');
+        
+        if (userNameElement) {
+            const name = `${telegramUser.first_name || ''} ${telegramUser.last_name || ''}`.trim();
+            userNameElement.textContent = name || 'Пользователь';
+        }
+        
+        if (userAvatarElement) {
+            if (telegramUser.photo_url) {
+                userAvatarElement.src = telegramUser.photo_url;
+                userAvatarElement.onerror = () => {
+                    this.setFallbackAvatar(telegramUser.first_name, telegramUser.last_name);
+                };
+            } else {
+                this.setFallbackAvatar(telegramUser.first_name, telegramUser.last_name);
             }
-            
-            if (avatarElement && userData.photo_url) {
-                avatarElement.src = userData.photo_url;
-            }
-        } catch (error) {
-            console.warn('Profile update error:', error);
         }
     }
 
-    setupBasicNavigation() {
-        try {
-            const buttons = document.querySelectorAll('.nav-btn');
-            buttons.forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const pageId = btn.getAttribute('data-page');
-                    console.log('Navigating to:', pageId);
-                    
-                    // Просто показываем alert для теста
-                    alert('Navigation: ' + pageId);
+    setFallbackAvatar(firstName, lastName) {
+        const userAvatarElement = document.getElementById('user-avatar');
+        if (userAvatarElement) {
+            const first = firstName ? firstName[0] : '';
+            const last = lastName ? lastName[0] : '';
+            const initials = (first + last).toUpperCase() || 'U';
+            
+            const colors = ['#00f3ff', '#ff00ff', '#bd00ff'];
+            const color = colors[initials.charCodeAt(0) % colors.length];
+            
+            userAvatarElement.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="${color}20" rx="40"/><text x="40" y="45" text-anchor="middle" fill="${color}" font-family="Arial" font-size="30" font-weight="bold">${initials}</text></svg>`;
+        }
+    }
+
+    initializeNavigation() {
+        // Активируем главную страницу
+        this.showPage('home');
+        this.activateNavButton('home');
+    }
+
+    showPage(pageId) {
+        // Скрываем все страницы
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.remove('active');
+        });
+        
+        // Показываем выбранную страницу
+        const pageElement = document.getElementById(`${pageId}-page`);
+        if (pageElement) {
+            pageElement.classList.add('active');
+            this.currentPage = pageId;
+        }
+    }
+
+    activateNavButton(pageId) {
+        // Деактивируем все кнопки
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Активируем выбранную кнопку
+        const activeButton = document.querySelector(`[data-page="${pageId}"]`);
+        if (activeButton) {
+            activeButton.classList.add('active');
+        }
+    }
+
+    setupEventListeners() {
+        // Навигация
+        document.querySelectorAll('.nav-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = e.currentTarget.getAttribute('data-page');
+                console.log('Navigating to:', pageId);
+                
+                this.showPage(pageId);
+                this.activateNavButton(pageId);
+            });
+        });
+
+        // Обработчики кнопок
+        this.setupButton('deposit-ton', 'Пополнение TON');
+        this.setupButton('withdraw-ton', 'Вывод TON');
+        this.setupButton('deposit-stars', 'Пополнение Stars');
+        this.setupButton('withdraw-stars', 'Вывод Stars');
+        this.setupButton('request-gift', 'Подарок');
+        this.setupButton('place-bet', 'Ставка');
+        this.setupButton('add-bet', 'Добавить ставку');
+    }
+
+    setupButton(buttonId, title) {
+        const button = document.getElementById(buttonId);
+        if (button) {
+            button.addEventListener('click', () => {
+                Telegram.WebApp.showPopup({
+                    title: title,
+                    message: 'Функция в разработке',
+                    buttons: [{ type: 'ok' }]
                 });
             });
-        } catch (error) {
-            console.warn('Navigation setup error:', error);
         }
     }
 
     showLoadingScreen() {
-        try {
-            const loading = document.getElementById('loading-screen');
-            const app = document.getElementById('app');
-            
-            if (loading) loading.style.display = 'flex';
-            if (app) app.style.display = 'none';
-        } catch (error) {
-            console.error('Show loading error:', error);
+        const loadingScreen = document.getElementById('loading-screen');
+        const app = document.getElementById('app');
+        
+        if (loadingScreen) {
+            loadingScreen.style.display = 'flex';
+            loadingScreen.classList.remove('hidden');
+        }
+        if (app) {
+            app.style.display = 'none';
+            app.classList.add('hidden');
         }
     }
 
     hideLoadingScreen() {
-        try {
-            const loading = document.getElementById('loading-screen');
-            const app = document.getElementById('app');
-            
-            if (loading) loading.style.display = 'none';
-            if (app) app.style.display = 'block';
-            
-            console.log('✅ Loading screen hidden, app visible');
-        } catch (error) {
-            console.error('Hide loading error:', error);
+        const loadingScreen = document.getElementById('loading-screen');
+        const app = document.getElementById('app');
+        
+        if (loadingScreen) {
+            loadingScreen.style.display = 'none';
+            loadingScreen.classList.add('hidden');
         }
+        if (app) {
+            app.style.display = 'block';
+            app.classList.remove('hidden');
+        }
+    }
+
+    showError(message) {
+        Telegram.WebApp.showPopup({
+            title: 'Ошибка',
+            message: message,
+            buttons: [{ type: 'ok' }]
+        });
     }
 }
 
-// АБСОЛЮТНО надежный запуск
-console.log('🎯 Script loaded, starting app...');
-
-// Запуск когда DOM готов
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log('📋 DOM ready, creating app instance');
-        window.app = new GameWebApp();
-    });
-} else {
-    // DOM уже готов
-    console.log('⚡ DOM already ready, creating app instance');
+// Запуск приложения
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('📋 DOM loaded, starting application...');
     window.app = new GameWebApp();
-}
+});
 
-// АВАРИЙНЫЙ ТАЙМАУТ - всегда скрывает загрузку через 5 секунд
-setTimeout(() => {
-    console.log('⏰ Emergency timeout - forcing app show');
-    const loading = document.getElementById('loading-screen');
+// Аварийный таймаут
+setTimeout(function() {
+    const loadingScreen = document.getElementById('loading-screen');
     const app = document.getElementById('app');
     
-    if (loading) loading.style.display = 'none';
-    if (app) app.style.display = 'block';
+    if (loadingScreen && loadingScreen.style.display !== 'none') {
+        console.log('⚠️ Emergency: Force hiding loading screen');
+        loadingScreen.style.display = 'none';
+    }
+    if (app && app.style.display === 'none') {
+        app.style.display = 'block';
+    }
 }, 5000);
