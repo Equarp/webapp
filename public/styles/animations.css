@@ -1,185 +1,55 @@
-.loading-content {
-    text-align: center;
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--dark-bg);
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    position: relative;
+    z-index: 9999;
 }
 
-/* Основной вращающийся круг - меньше пульсации */
+.loading-content {
+    text-align: center;
+}
+
 .loading-circle {
     width: 60px;
     height: 60px;
-    border: 3px solid transparent;
-    border-top: 3px solid var(--neon-blue);
-    border-right: 3px solid var(--neon-pink);
+    border: 4px solid rgba(0, 243, 255, 0.3);
+    border-top: 4px solid var(--neon-blue);
     border-radius: 50%;
-    animation: spin 1.8s linear infinite;
+    animation: spin 1s linear infinite;
     margin-bottom: 20px;
-    position: relative;
-    /* Меньше пульсации тени */
-    box-shadow: 
-        0 0 8px var(--neon-blue),
-        0 0 15px var(--neon-pink);
+    box-shadow: 0 0 15px var(--neon-blue);
 }
 
-/* Внешнее кольцо - более спокойное */
-.loading-circle::before {
-    content: '';
-    position: absolute;
-    top: -6px;
-    left: -6px;
-    right: -6px;
-    bottom: -6px;
-    border: 2px solid transparent;
-    border-top: 2px solid var(--neon-pink);
-    border-left: 2px solid var(--neon-blue);
-    border-radius: 50%;
-    animation: spinReverse 2.2s linear infinite;
-    filter: blur(1px);
-    opacity: 0.8; /* Более прозрачный */
-}
-
-/* Внутреннее кольцо - минимальная пульсация */
-.loading-circle::after {
-    content: '';
-    position: absolute;
-    top: -3px;
-    left: -3px;
-    right: -3px;
-    bottom: -3px;
-    border: 1px solid transparent;
-    border-bottom: 1px solid var(--neon-purple);
-    border-radius: 50%;
-    animation: spin 2.5s linear infinite;
-    opacity: 0.6; /* Еще более прозрачный */
-}
-
-/* Более плавная анимация вращения без сильной пульсации */
 @keyframes spin {
-    0% { 
-        transform: rotate(0deg);
-        /* Минимальное изменение тени */
-        box-shadow: 
-            0 0 8px var(--neon-blue),
-            0 0 15px var(--neon-pink);
-    }
-    50% { 
-        /* Небольшое усиление вместо сильной пульсации */
-        box-shadow: 
-            0 0 12px var(--neon-blue),
-            0 0 18px var(--neon-pink);
-    }
-    100% { 
-        transform: rotate(360deg);
-        box-shadow: 
-            0 0 8px var(--neon-blue),
-            0 0 15px var(--neon-pink);
-    }
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-/* Плавное обратное вращение */
-@keyframes spinReverse {
-    0% { 
-        transform: rotate(0deg);
-        border-top-color: var(--neon-pink);
-        border-left-color: var(--neon-blue);
-    }
-    50% { 
-        /* Легкое изменение цвета вместо резкого */
-        border-top-color: rgba(255, 0, 255, 0.8);
-        border-left-color: rgba(0, 243, 255, 0.8);
-    }
-    100% { 
-        transform: rotate(-360deg);
-        border-top-color: var(--neon-pink);
-        border-left-color: var(--neon-blue);
-    }
-}
-
-/* Текст с умеренной пульсацией */
 .loading-text {
     color: var(--neon-blue);
     font-size: 16px;
-    text-shadow: 
-        0 0 4px var(--neon-blue),
-        0 0 8px var(--neon-pink);
-    animation: pulse 3s infinite; /* Более медленная пульсация */
+    text-shadow: 0 0 10px var(--neon-blue);
+    animation: pulse 2s infinite;
 }
 
 .loading-dots::after {
     content: '';
-    animation: dots 2s infinite; /* Медленнее точки */
+    animation: dots 1.5s infinite;
 }
 
 @keyframes dots {
-    0%, 30% { 
-        content: '.';
-        color: var(--neon-blue);
-    }
-    40%, 70% { 
-        content: '..';
-        color: var(--neon-pink);
-    }
-    80%, 100% { 
-        content: '...';
-        color: var(--neon-purple);
-    }
+    0%, 20% { content: '.'; }
+    40% { content: '..'; }
+    60%, 100% { content: '...'; }
 }
 
-/* Более спокойная пульсация текста */
 @keyframes pulse {
-    0%, 100% { 
-        opacity: 0.8;
-        text-shadow: 
-            0 0 4px var(--neon-blue),
-            0 0 8px var(--neon-pink);
-    }
-    50% { 
-        opacity: 1;
-        text-shadow: 
-            0 0 8px var(--neon-blue),
-            0 0 12px var(--neon-pink);
-    }
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
 }
-
-/* Убираем слишком активные частицы на фоне */
-.loading-content::before,
-.loading-content::after {
-    display: none; /* Убираем фоновые частицы */
-}
-
-/* Альтернатива: очень спокойные частицы */
-/*
-.loading-content::before {
-    content: '';
-    position: absolute;
-    width: 60px;
-    height: 60px;
-    background: radial-gradient(circle, var(--neon-blue) 0%, transparent 80%);
-    opacity: 0.05;
-    animation: float 6s ease-in-out infinite;
-}
-
-.loading-content::after {
-    content: '';
-    position: absolute;
-    width: 50px;
-    height: 50px;
-    background: radial-gradient(circle, var(--neon-pink) 0%, transparent 80%);
-    opacity: 0.05;
-    animation: float 5s ease-in-out infinite reverse;
-    animation-delay: 2s;
-}
-
-@keyframes float {
-    0%, 100% {
-        transform: translate(0, 0) rotate(0deg);
-        opacity: 0.05;
-    }
-    50% {
-        transform: translate(5px, -5px) rotate(90deg);
-        opacity: 0.08;
-    }
-}
-*/
