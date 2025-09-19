@@ -101,4 +101,54 @@
 </body>
 </html>
 
+<!-- Добавим секцию для игры -->
+<div id="game-page" class="page">
+    <div class="game-container">
+        <div class="game-header">
+            <h2>PvP Рулетка</h2>
+            <div class="game-id">#<span id="game-number">113091</span></div>
+        </div>
+        
+        <div class="wheel-container">
+            <div class="wheel" id="wheel">
+                <div class="wheel-segment player1-segment"></div>
+                <div class="wheel-segment player2-segment"></div>
+                <div class="wheel-pointer"></div>
+            </div>
+        </div>
+        
+        <div class="game-info">
+            <div class="bank-info">
+                <h3>Общий банк</h3>
+                <p><span id="total-gifts">0</span> ГИФТОВ / <span id="total-ton">0</span> TON</p>
+            </div>
+            
+            <div class="players-info">
+                <div class="player player1">
+                    <span class="player-name">Ваша ставка</span>
+                    <span class="player-bet">0 TON</span>
+                    <span class="player-chance">0%</span>
+                </div>
+                <div class="player player2">
+                    <span class="player-name">Оппонент</span>
+                    <span class="player-bet">0 TON</span>
+                    <span class="player-chance">0%</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="game-controls">
+            <div class="timer" id="game-timer">
+                Старт через 00:00
+            </div>
+            <button class="btn btn-primary" id="place-bet">
+                Сделать ставку
+            </button>
+            <button class="btn btn-secondary" id="add-bet">
+                Добавить Гифты
+            </button>
+        </div>
+    </div>
+</div>
+
 
