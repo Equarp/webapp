@@ -1,23 +1,101 @@
+.loading-content {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Основной вращающийся круг */
 .loading-circle {
     width: 60px;
     height: 60px;
-    border: 4px solid rgba(0, 243, 255, 0.3);
+    border: 4px solid transparent;
     border-top: 4px solid var(--neon-blue);
+    border-right: 4px solid var(--neon-pink);
     border-radius: 50%;
-    animation: spin 1s linear infinite;
+    animation: spin 1.5s linear infinite;
     margin-bottom: 20px;
-    box-shadow: 0 0 15px var(--neon-blue);
+    position: relative;
+    box-shadow: 
+        0 0 10px var(--neon-blue),
+        0 0 20px var(--neon-pink);
+}
+
+/* Внешнее кольцо с обратным вращением */
+.loading-circle::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
+    border: 2px solid transparent;
+    border-top: 2px solid var(--neon-pink);
+    border-left: 2px solid var(--neon-blue);
+    border-radius: 50%;
+    animation: spinReverse 2s linear infinite;
+    filter: blur(1px);
+}
+
+/* Внутреннее кольцо */
+.loading-circle::after {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border: 1px solid transparent;
+    border-bottom: 1px solid var(--neon-purple);
+    border-radius: 50%;
+    animation: spin 3s linear infinite;
+    opacity: 0.7;
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% { 
+        transform: rotate(0deg);
+        box-shadow: 
+            0 0 10px var(--neon-blue),
+            0 0 20px var(--neon-pink);
+    }
+    50% { 
+        box-shadow: 
+            0 0 20px var(--neon-blue),
+            0 0 30px var(--neon-pink),
+            0 0 40px var(--neon-purple);
+    }
+    100% { 
+        transform: rotate(360deg);
+        box-shadow: 
+            0 0 10px var(--neon-blue),
+            0 0 20px var(--neon-pink);
+    }
+}
+
+@keyframes spinReverse {
+    0% { 
+        transform: rotate(0deg);
+        border-top-color: var(--neon-pink);
+        border-left-color: var(--neon-blue);
+    }
+    50% { 
+        border-top-color: var(--neon-purple);
+        border-left-color: var(--neon-pink);
+    }
+    100% { 
+        transform: rotate(-360deg);
+        border-top-color: var(--neon-pink);
+        border-left-color: var(--neon-blue);
+    }
 }
 
 .loading-text {
     color: var(--neon-blue);
     font-size: 16px;
-    text-shadow: 0 0 10px var(--neon-blue);
+    text-shadow: 
+        0 0 5px var(--neon-blue),
+        0 0 10px var(--neon-pink);
     animation: pulse 2s infinite;
 }
 
@@ -27,12 +105,73 @@
 }
 
 @keyframes dots {
-    0%, 20% { content: '.'; }
-    40% { content: '..'; }
-    60%, 100% { content: '...'; }
+    0%, 20% { 
+        content: '.';
+        color: var(--neon-blue);
+    }
+    40% { 
+        content: '..';
+        color: var(--neon-pink);
+    }
+    60%, 100% { 
+        content: '...';
+        color: var(--neon-purple);
+    }
 }
 
 @keyframes pulse {
-    0%, 100% { opacity: 0.7; }
-    50% { opacity: 1; }
+    0%, 100% { 
+        opacity: 0.7;
+        text-shadow: 
+            0 0 5px var(--neon-blue),
+            0 0 10px var(--neon-pink);
+    }
+    50% { 
+        opacity: 1;
+        text-shadow: 
+            0 0 15px var(--neon-blue),
+            0 0 25px var(--neon-pink),
+            0 0 35px var(--neon-purple);
+    }
+}
+
+/* Дополнительные частицы для красоты */
+.loading-content::before {
+    content: '';
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle, var(--neon-blue) 0%, transparent 70%);
+    opacity: 0.1;
+    animation: float 4s ease-in-out infinite;
+}
+
+.loading-content::after {
+    content: '';
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, var(--neon-pink) 0%, transparent 70%);
+    opacity: 0.1;
+    animation: float 3s ease-in-out infinite reverse;
+    animation-delay: 1s;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translate(0, 0) rotate(0deg);
+        opacity: 0.1;
+    }
+    25% {
+        transform: translate(10px, -10px) rotate(90deg);
+        opacity: 0.2;
+    }
+    50% {
+        transform: translate(0, -20px) rotate(180deg);
+        opacity: 0.1;
+    }
+    75% {
+        transform: translate(-10px, -10px) rotate(270deg);
+        opacity: 0.2;
+    }
 }
