@@ -1,190 +1,175 @@
 class GameWebApp {
     constructor() {
         this.currentPage = 'home';
+        this.isLoading = true;
         this.init();
     }
 
     async init() {
         try {
-            console.log('🚀 Starting app initialization...');
-            
-            // Показываем экран загрузки
+            console.log('🚀 Starting application...');
             this.showLoadingScreen();
             
-            // Даем время на отрисовку загрузки
-            await new Promise(resolve => setTimeout(resolve, 100));
+            // Инициализация Telegram WebApp на полный экран
+            Telegram.WebApp.ready();
+            Telegram.WebApp.expand(); // Важно: разворачиваем на весь экран
             
-            // Инициализируем Telegram
-            await this.initTelegram();
+            // Блокировка масштабирования
+            this.disableZoom();
             
-            // Получаем данные пользователя
-            const userData = await this.getUserData();
+            // Ждем инициализации Telegram
+            await new Promise(resolve => setTimeout(resolve, 500));
             
-            // Обновляем интерфейс
-            this.updateUI(userData);
+            const telegramUser = Telegram.WebApp.initDataUnsafe.user;
+            console.log('Telegram user data:', telegramUser);
             
-            // Настраиваем навигацию
-            this.setupNavigation();
+            if (!telegramUser || !telegramUser.id) {
+                throw new Error('Данные пользователя Telegram не получены');
+            }
             
-            // Скрываем загрузку
+            // Немедленно обновляем UI с данными пользователя
+            this.updateUserProfile(telegramUser);
+            
+            // Инициализируем навигацию
+            this.initializeNavigation();
+            
+            // Настраиваем обработчики событий
+            this.setupEventListeners();
+            
+            // Скрываем загрузку через 2 секунды
             setTimeout(() => {
                 this.hideLoadingScreen();
-                console.log('✅ App initialized successfully');
+                this.isLoading = false;
+                console.log('✅ Application initialized successfully');
             }, 2000);
             
         } catch (error) {
-            console.error('❌ App initialization failed:', error);
-            this.showError(error.message);
+            console.error('❌ Application initialization error:', error);
             this.hideLoadingScreen();
+            this.showError(error.message);
         }
     }
 
-    async initTelegram() {
-        return new Promise((resolve) => {
-            console.log('Initializing Telegram WebApp...');
-            
-            // Проверяем, доступен ли Telegram WebApp
-            if (typeof Telegram === 'undefined' || !Telegram.WebApp) {
-                throw new Error('Telegram WebApp not available');
+    disableZoom() {
+        // Блокировка жестов масштабирования
+        document.addEventListener('touchstart', function(event) {
+            if (event.touches.length > 1) {
+                event.preventDefault();
             }
-            
-            Telegram.WebApp.ready();
-            Telegram.WebApp.expand();
-            
-            // Даем время на инициализацию Telegram
-            setTimeout(() => {
-                console.log('Telegram WebApp ready');
-                resolve();
-            }, 300);
-        });
+        }, { passive: false });
+
+        // Блокировка двойного тапа
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function(event) {
+            const now = Date.now();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, { passive: false });
+
+        console.log('🔒 Zoom and scale disabled');
     }
 
-    async getUserData() {
-        console.log('Getting user data...');
-        
-        // Проверяем данные Telegram
-        if (!Telegram.WebApp.initDataUnsafe || !Telegram.WebApp.initDataUnsafe.user) {
-            console.warn('No Telegram user data, using fallback');
-            return this.getFallbackUserData();
-        }
-        
-        const tgUser = Telegram.WebApp.initDataUnsafe.user;
-        console.log('Telegram user:', tgUser);
-        
-        return {
-            id: tgUser.id,
-            firstName: tgUser.first_name,
-            lastName: tgUser.last_name,
-            username: tgUser.username,
-            photoUrl: tgUser.photo_url,
-            languageCode: tgUser.language_code
-        };
-    }
-
-    getFallbackUserData() {
-        // Заглушка если данные Telegram не доступны
-        return {
-            id: Math.random().toString(36).substr(2, 9),
-            firstName: 'Гость',
-            lastName: '',
-            username: 'guest',
-            photoUrl: null
-        };
-    }
-
-    updateUI(userData) {
-        console.log('Updating UI with user data:', userData);
-        
-        // Обновляем профиль
-        this.updateProfile(userData);
-        
-        // Обновляем балансы
-        this.updateBalances();
-        
-        // Активируем главную страницу
-        this.showPage('home');
-    }
-
-    updateProfile(userData) {
+    updateUserProfile(telegramUser) {
         const userNameElement = document.getElementById('user-name');
         const userAvatarElement = document.getElementById('user-avatar');
         
         if (userNameElement) {
-            const name = `${userData.firstName || ''} ${userData.lastName || ''}`.trim();
+            const name = `${telegramUser.first_name || ''} ${telegramUser.last_name || ''}`.trim();
             userNameElement.textContent = name || 'Пользователь';
         }
         
         if (userAvatarElement) {
-            if (userData.photoUrl) {
-                userAvatarElement.src = userData.photoUrl;
-                userAvatarElement.onerror = () => this.setFallbackAvatar(userData);
+            if (telegramUser.photo_url) {
+                userAvatarElement.src = telegramUser.photo_url;
+                userAvatarElement.onerror = () => {
+                    this.setFallbackAvatar(telegramUser.first_name, telegramUser.last_name);
+                };
             } else {
-                this.setFallbackAvatar(userData);
+                this.setFallbackAvatar(telegramUser.first_name, telegramUser.last_name);
             }
         }
     }
 
-    setFallbackAvatar(userData) {
+    setFallbackAvatar(firstName, lastName) {
         const userAvatarElement = document.getElementById('user-avatar');
-        if (!userAvatarElement) return;
-        
-        const first = userData.firstName ? userData.firstName[0] : '';
-        const last = userData.lastName ? userData.lastName[0] : '';
-        const initials = (first + last).toUpperCase() || 'U';
-        
-        const colors = ['#00f3ff', '#ff00ff', '#bd00ff'];
-        const color = colors[initials.charCodeAt(0) % colors.length];
-        
-        userAvatarElement.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="${color}20" rx="40"/><text x="40" y="45" text-anchor="middle" fill="${color}" font-family="Arial" font-size="30" font-weight="bold">${initials}</text></svg>`;
-    }
-
-    updateBalances() {
-        // Заглушки для балансов
-        const tonBalanceElement = document.getElementById('ton-balance');
-        const starsBalanceElement = document.getElementById('stars-balance');
-        
-        if (tonBalanceElement) {
-            tonBalanceElement.textContent = '0 TON';
-        }
-        if (starsBalanceElement) {
-            starsBalanceElement.textContent = '0 Stars';
+        if (userAvatarElement) {
+            const first = firstName ? firstName[0] : '';
+            const last = lastName ? lastName[0] : '';
+            const initials = (first + last).toUpperCase() || 'U';
+            
+            const colors = ['#00f3ff', '#ff00ff', '#bd00ff'];
+            const color = colors[initials.charCodeAt(0) % colors.length];
+            
+            userAvatarElement.src = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80"><rect width="80" height="80" fill="${color}20" rx="40"/><text x="40" y="45" text-anchor="middle" fill="${color}" font-family="Arial" font-size="30" font-weight="bold">${initials}</text></svg>`;
         }
     }
 
-    setupNavigation() {
-        console.log('Setting up navigation...');
-        
-        const navButtons = document.querySelectorAll('.nav-btn');
-        if (!navButtons.length) {
-            console.warn('No navigation buttons found');
-            return;
-        }
-        
-        navButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                const page = e.currentTarget.getAttribute('data-page');
-                console.log('Navigating to:', page);
-                this.showPage(page);
-            });
+    initializeNavigation() {
+        // Активируем главную страницу
+        this.showPage('home');
+        this.activateNavButton('home');
+    }
+
+    showPage(pageId) {
+        // Скрываем все страницы
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.remove('active');
         });
         
-        // Простые обработчики для кнопок
-        this.setupBasicButton('deposit-ton', 'Пополнение TON');
-        this.setupBasicButton('withdraw-ton', 'Вывод TON');
-        this.setupBasicButton('deposit-stars', 'Пополнение Stars');
-        this.setupBasicButton('withdraw-stars', 'Вывод Stars');
-        this.setupBasicButton('request-gift', 'Подарок');
-        this.setupBasicButton('place-bet', 'Ставка');
-        this.setupBasicButton('add-bet', 'Добавить ставку');
+        // Показываем выбранную страницу
+        const pageElement = document.getElementById(`${pageId}-page`);
+        if (pageElement) {
+            pageElement.classList.add('active');
+            this.currentPage = pageId;
+        }
     }
 
-    setupBasicButton(buttonId, message) {
+    activateNavButton(pageId) {
+        // Деактивируем все кнопки
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        
+        // Активируем выбранную кнопку
+        const activeButton = document.querySelector(`[data-page="${pageId}"]`);
+        if (activeButton) {
+            activeButton.classList.add('active');
+        }
+    }
+
+    setupEventListeners() {
+        console.log('Setting up event listeners...');
+        
+        // Навигация
+        document.querySelectorAll('.nav-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = e.currentTarget.getAttribute('data-page');
+                console.log('Navigating to:', pageId);
+                
+                this.showPage(pageId);
+                this.activateNavButton(pageId);
+            });
+        });
+
+        // Обработчики кнопок
+        this.setupButtonHandler('deposit-ton', 'Пополнение TON');
+        this.setupButtonHandler('withdraw-ton', 'Вывод TON');
+        this.setupButtonHandler('deposit-stars', 'Пополнение Stars');
+        this.setupButtonHandler('withdraw-stars', 'Вывод Stars');
+        this.setupButtonHandler('request-gift', 'Подарок');
+        this.setupButtonHandler('place-bet', 'Ставка');
+        this.setupButtonHandler('add-bet', 'Добавить ставку');
+    }
+
+    setupButtonHandler(buttonId, title) {
         const button = document.getElementById(buttonId);
         if (button) {
             button.addEventListener('click', () => {
                 Telegram.WebApp.showPopup({
-                    title: message,
+                    title: title,
                     message: 'Функция в разработке',
                     buttons: [{ type: 'ok' }]
                 });
@@ -192,36 +177,7 @@ class GameWebApp {
         }
     }
 
-    showPage(pageId) {
-        console.log('Showing page:', pageId);
-        
-        // Скрываем все страницы
-        const pages = document.querySelectorAll('.page');
-        pages.forEach(page => {
-            page.classList.remove('active');
-        });
-        
-        // Показываем выбранную страницу
-        const targetPage = document.getElementById(`${pageId}-page`);
-        if (targetPage) {
-            targetPage.classList.add('active');
-            this.currentPage = pageId;
-        }
-        
-        // Обновляем активную кнопку навигации
-        const navButtons = document.querySelectorAll('.nav-btn');
-        navButtons.forEach(btn => {
-            btn.classList.remove('active');
-        });
-        
-        const activeBtn = document.querySelector(`[data-page="${pageId}"]`);
-        if (activeBtn) {
-            activeBtn.classList.add('active');
-        }
-    }
-
     showLoadingScreen() {
-        console.log('Showing loading screen...');
         const loadingScreen = document.getElementById('loading-screen');
         const app = document.getElementById('app');
         
@@ -236,7 +192,6 @@ class GameWebApp {
     }
 
     hideLoadingScreen() {
-        console.log('Hiding loading screen...');
         const loadingScreen = document.getElementById('loading-screen');
         const app = document.getElementById('app');
         
@@ -251,53 +206,27 @@ class GameWebApp {
     }
 
     showError(message) {
-        console.error('Showing error:', message);
-        
-        // Простой alert вместо сложных popup
-        alert(`Ошибка: ${message}\n\nПриложение будет работать в ограниченном режиме.`);
+        Telegram.WebApp.showPopup({
+            title: 'Ошибка',
+            message: message,
+            buttons: [{ type: 'ok' }]
+        });
     }
 }
 
-// Аварийный обработчик ошибок
-window.addEventListener('error', function(event) {
-    console.error('Global error:', event.error);
-    
-    // Пытаемся скрыть экран загрузки при любой ошибке
-    const loadingScreen = document.getElementById('loading-screen');
-    const app = document.getElementById('app');
-    
-    if (loadingScreen) {
-        loadingScreen.style.display = 'none';
-    }
-    if (app) {
-        app.style.display = 'block';
-    }
-});
-
-// Запуск приложения когда DOM готов
+// Инициализация приложения
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM fully loaded and parsed');
-    
-    // Даем дополнительное время для полной загрузки
-    setTimeout(() => {
-        window.app = new GameWebApp();
-    }, 100);
+    console.log('📋 DOM loaded, initializing application...');
+    window.app = new GameWebApp();
 });
 
-// Резервный запуск если DOM уже загружен
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-    setTimeout(() => {
-        window.app = new GameWebApp();
-    }, 100);
-}
-
-// Аварийный выход из загрузки через 10 секунд
-setTimeout(() => {
+// Аварийный таймаут на случай зависания
+setTimeout(function() {
     const loadingScreen = document.getElementById('loading-screen');
     const app = document.getElementById('app');
     
     if (loadingScreen && loadingScreen.style.display !== 'none') {
-        console.warn('Force hiding loading screen after timeout');
+        console.log('⚠️ Emergency: Force hiding loading screen');
         loadingScreen.style.display = 'none';
     }
     if (app && app.style.display === 'none') {
