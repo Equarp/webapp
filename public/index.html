@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game WebApp</title>
     <meta name="telegram-web-app-bot-api-version" content="9.0">
     <link rel="stylesheet" href="/styles/main.css">
@@ -10,14 +10,10 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <!-- остальной HTML без изменений -->
-    <script src="/scripts/app.js"></script>
-</body>
-</html>
     <div id="loading-screen" class="loading-screen">
         <div class="loading-content">
             <div class="loading-circle"></div>
-            <p class="loading-text">Loading<span class="loading-dots"></span></p>
+            <p class="loading-text">Загрузка приложения<span class="loading-dots"></span></p>
         </div>
     </div>
 
@@ -27,7 +23,6 @@
         </header>
 
         <main class="main-content">
-            <!-- Главная страница -->
             <div id="home-page" class="page active">
                 <div class="welcome-section">
                     <h2>Добро пожаловать!</h2>
@@ -46,7 +41,6 @@
                 </div>
             </div>
 
-            <!-- Игра PvP Рулетка -->
             <div id="game-page" class="page">
                 <div class="game-container">
                     <div class="game-header">
@@ -96,7 +90,6 @@
                 </div>
             </div>
 
-            <!-- Профиль -->
             <div id="profile-page" class="page">
                 <div class="profile-header">
                     <img id="user-avatar" src="" alt="Avatar" class="profile-avatar">
@@ -119,7 +112,6 @@
                 </div>
             </div>
 
-            <!-- Инвентарь -->
             <div id="inventory-page" class="page">
                 <h2>Ваш инвентарь</h2>
                 <div id="inventory-items" class="inventory-grid">
@@ -130,7 +122,6 @@
             </div>
         </main>
 
-        <!-- Навигация -->
         <nav class="bottom-nav">
             <button class="nav-btn active" data-page="home">
                 <span class="nav-icon">🏠</span>
@@ -151,8 +142,86 @@
         </nav>
     </div>
 
-    <script src="/scripts/app.js"></script>
+    <script>
+        // Минимальный рабочий скрипт
+        console.log('🚀 App starting...');
+        
+        // Немедленно скрываем загрузку и показываем приложение
+        function showApp() {
+            const loading = document.getElementById('loading-screen');
+            const app = document.getElementById('app');
+            
+            if (loading) {
+                loading.style.display = 'none';
+                console.log('Loading screen hidden');
+            }
+            
+            if (app) {
+                app.style.display = 'block';
+                app.classList.remove('hidden');
+                console.log('App shown');
+            }
+        }
+        
+        // Простая навигация
+        function setupNavigation() {
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const pageId = this.getAttribute('data-page');
+                    console.log('Navigating to:', pageId);
+                    
+                    // Скрыть все страницы
+                    document.querySelectorAll('.page').forEach(page => {
+                        page.classList.remove('active');
+                    });
+                    
+                    // Показать выбранную
+                    const targetPage = document.getElementById(pageId + '-page');
+                    if (targetPage) {
+                        targetPage.classList.add('active');
+                    }
+                    
+                    // Подсветить кнопку
+                    buttons.forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        }
+        
+        // Инициализация Telegram
+        function initTelegram() {
+            if (typeof Telegram !== 'undefined') {
+                Telegram.WebApp.ready();
+                Telegram.WebApp.expand();
+                console.log('Telegram initialized');
+                
+                // Показать данные пользователя если есть
+                if (Telegram.WebApp.initDataUnsafe.user) {
+                    const user = Telegram.WebApp.initDataUnsafe.user;
+                    const nameEl = document.getElementById('user-name');
+                    const avatarEl = document.getElementById('user-avatar');
+                    
+                    if (nameEl) {
+                        nameEl.textContent = user.first_name || 'Пользователь';
+                    }
+                    if (avatarEl && user.photo_url) {
+                        avatarEl.src = user.photo_url;
+                    }
+                }
+            }
+        }
+        
+        // Запуск при загрузке DOM
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+            showApp();
+            initTelegram();
+            setupNavigation();
+        });
+        
+        // На всякий случай: таймаут 5 секунд
+        setTimeout(showApp, 5000);
+    </script>
 </body>
 </html>
-
-
