@@ -2,12 +2,28 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Game WebApp</title>
     <meta name="telegram-web-app-bot-api-version" content="9.0">
     <link rel="stylesheet" href="/styles/main.css">
     <link rel="stylesheet" href="/styles/animations.css">
+    <link rel="stylesheet" href="/styles/game.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* Базовая блокировка масштабирования */
+        body {
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Разрешаем выделение в полях ввода */
+        input, textarea {
+            -webkit-user-select: text;
+            user-select: text;
+        }
+    </style>
 </head>
 <body>
     <div id="loading-screen" class="loading-screen">
@@ -23,7 +39,7 @@
         </header>
 
         <main class="main-content">
-            <div id="home-page" class="page active">
+            <div id="home-page" class="page">
                 <div class="welcome-section">
                     <h2>Добро пожаловать!</h2>
                     <p>Игровое приложение с интеграцией TON и Telegram Stars</p>
@@ -123,7 +139,7 @@
         </main>
 
         <nav class="bottom-nav">
-            <button class="nav-btn active" data-page="home">
+            <button class="nav-btn" data-page="home">
                 <span class="nav-icon">🏠</span>
                 <span class="nav-label">Главная</span>
             </button>
@@ -142,86 +158,6 @@
         </nav>
     </div>
 
-    <script>
-        // Минимальный рабочий скрипт
-        console.log('🚀 App starting...');
-        
-        // Немедленно скрываем загрузку и показываем приложение
-        function showApp() {
-            const loading = document.getElementById('loading-screen');
-            const app = document.getElementById('app');
-            
-            if (loading) {
-                loading.style.display = 'none';
-                console.log('Loading screen hidden');
-            }
-            
-            if (app) {
-                app.style.display = 'block';
-                app.classList.remove('hidden');
-                console.log('App shown');
-            }
-        }
-        
-        // Простая навигация
-        function setupNavigation() {
-            const buttons = document.querySelectorAll('.nav-btn');
-            buttons.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    const pageId = this.getAttribute('data-page');
-                    console.log('Navigating to:', pageId);
-                    
-                    // Скрыть все страницы
-                    document.querySelectorAll('.page').forEach(page => {
-                        page.classList.remove('active');
-                    });
-                    
-                    // Показать выбранную
-                    const targetPage = document.getElementById(pageId + '-page');
-                    if (targetPage) {
-                        targetPage.classList.add('active');
-                    }
-                    
-                    // Подсветить кнопку
-                    buttons.forEach(b => b.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
-        }
-        
-        // Инициализация Telegram
-        function initTelegram() {
-            if (typeof Telegram !== 'undefined') {
-                Telegram.WebApp.ready();
-                Telegram.WebApp.expand();
-                console.log('Telegram initialized');
-                
-                // Показать данные пользователя если есть
-                if (Telegram.WebApp.initDataUnsafe.user) {
-                    const user = Telegram.WebApp.initDataUnsafe.user;
-                    const nameEl = document.getElementById('user-name');
-                    const avatarEl = document.getElementById('user-avatar');
-                    
-                    if (nameEl) {
-                        nameEl.textContent = user.first_name || 'Пользователь';
-                    }
-                    if (avatarEl && user.photo_url) {
-                        avatarEl.src = user.photo_url;
-                    }
-                }
-            }
-        }
-        
-        // Запуск при загрузке DOM
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded');
-            showApp();
-            initTelegram();
-            setupNavigation();
-        });
-        
-        // На всякий случай: таймаут 5 секунд
-        setTimeout(showApp, 5000);
-    </script>
+    <script src="/scripts/app.js"></script>
 </body>
 </html>
