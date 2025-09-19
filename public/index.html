@@ -2,27 +2,39 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="format-detection" content="telephone=no">
     <title>Game WebApp</title>
     <meta name="telegram-web-app-bot-api-version" content="9.0">
     <link rel="stylesheet" href="/styles/main.css">
     <link rel="stylesheet" href="/styles/animations.css">
+    <link rel="stylesheet" href="/styles/game.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        /* Блокировка масштабирования */
+        body {
+            touch-action: manipulation;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Для iOS */
+        @supports (-webkit-touch-callout: none) {
+            body {
+                -webkit-user-select: none;
+                user-select: none;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div id="loading-screen" class="loading-screen">
-        <div class="loading-content">
-            <div class="loading-circle"></div>
-            <p class="loading-text">Loading<span class="loading-dots"></span></p>
-        </div>
-    </div>
-
-    <div id="app" class="app hidden">
-        <header class="header">
-            <h1 class="app-title">Game WebApp</h1>
-        </header>
-
-        <main class="main-content">
+    <!-- остальное содержимое -->
+</body>
+</html>
             <!-- Главная страница -->
             <div id="home-page" class="page">
                 <div class="welcome-section">
@@ -149,43 +161,5 @@
     </div>
 </div>
 
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="format-detection" content="telephone=no">
-    <title>Game WebApp</title>
-    <meta name="telegram-web-app-bot-api-version" content="9.0">
-    <link rel="stylesheet" href="/styles/main.css">
-    <link rel="stylesheet" href="/styles/animations.css">
-    <link rel="stylesheet" href="/styles/game.css">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        /* Блокировка масштабирования */
-        body {
-            touch-action: manipulation;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        /* Для iOS */
-        @supports (-webkit-touch-callout: none) {
-            body {
-                -webkit-user-select: none;
-                user-select: none;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- остальное содержимое -->
 </body>
 </html>
-
-
-
