@@ -2,10 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="format-detection" content="telephone=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Game WebApp</title>
     <meta name="telegram-web-app-bot-api-version" content="9.0">
     <link rel="stylesheet" href="/styles/main.css">
@@ -13,30 +10,34 @@
     <link rel="stylesheet" href="/styles/game.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Блокировка масштабирования */
         body {
-            touch-action: manipulation;
-            -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
-            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
         }
         
-        /* Для iOS */
-        @supports (-webkit-touch-callout: none) {
-            body {
-                -webkit-user-select: none;
-                user-select: none;
-            }
+        input, textarea {
+            -webkit-user-select: text;
+            user-select: text;
         }
     </style>
 </head>
 <body>
-    <!-- остальное содержимое -->
-</body>
-</html>
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-circle"></div>
+            <p class="loading-text">Загрузка приложения<span class="loading-dots"></span></p>
+        </div>
+    </div>
+
+    <div id="app" class="app hidden">
+        <header class="header">
+            <h1 class="app-title">Game WebApp</h1>
+        </header>
+
+        <main class="main-content">
             <!-- Главная страница -->
-            <div id="home-page" class="page">
+            <div id="home-page" class="page active">
                 <div class="welcome-section">
                     <h2>Добро пожаловать!</h2>
                     <p>Игровое приложение с интеграцией TON и Telegram Stars</p>
@@ -50,6 +51,56 @@
                     <div class="balance-card stars-balance">
                         <h3>Stars Баланс</h3>
                         <p id="stars-balance">0 Stars</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Игра PvP Рулетка -->
+            <div id="game-page" class="page">
+                <div class="game-container">
+                    <div class="game-header">
+                        <h2>PvP Рулетка</h2>
+                        <div class="game-id">#<span id="game-number">113091</span></div>
+                    </div>
+                    
+                    <div class="wheel-container">
+                        <div class="wheel" id="wheel">
+                            <div class="wheel-segment player1-segment"></div>
+                            <div class="wheel-segment player2-segment"></div>
+                            <div class="wheel-pointer"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="game-info">
+                        <div class="bank-info">
+                            <h3>Общий банк</h3>
+                            <p><span id="total-gifts">0</span> ГИФТОВ / <span id="total-ton">0</span> TON</p>
+                        </div>
+                        
+                        <div class="players-info">
+                            <div class="player player1">
+                                <span class="player-name">Ваша ставка</span>
+                                <span class="player-bet">0 TON</span>
+                                <span class="player-chance">0%</span>
+                            </div>
+                            <div class="player player2">
+                                <span class="player-name">Оппонент</span>
+                                <span class="player-bet">0 TON</span>
+                                <span class="player-chance">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="game-controls">
+                        <div class="timer" id="game-timer">
+                            Старт через 00:00
+                        </div>
+                        <button class="btn btn-primary" id="place-bet">
+                            Сделать ставку
+                        </button>
+                        <button class="btn btn-secondary" id="add-bet">
+                            Добавить Гифты
+                        </button>
                     </div>
                 </div>
             </div>
@@ -89,77 +140,26 @@
         </main>
 
         <!-- Навигация -->
-<nav class="bottom-nav">
-    <button class="nav-btn active" data-page="home">
-        <span class="nav-icon">🏠</span>
-        <span class="nav-label">Главная</span>
-    </button>
-    <button class="nav-btn" data-page="game">
-        <span class="nav-icon">🎮</span>
-        <span class="nav-label">Игра</span>
-    </button>
-    <button class="nav-btn" data-page="inventory">
-        <span class="nav-icon">🎒</span>
-        <span class="nav-label">Инвентарь</span>
-    </button>
-    <button class="nav-btn" data-page="profile">
-        <span class="nav-icon">👤</span>
-        <span class="nav-label">Профиль</span>
-    </button>
-</nav>
+        <nav class="bottom-nav">
+            <button class="nav-btn active" data-page="home">
+                <span class="nav-icon">🏠</span>
+                <span class="nav-label">Главная</span>
+            </button>
+            <button class="nav-btn" data-page="game">
+                <span class="nav-icon">🎮</span>
+                <span class="nav-label">Игра</span>
+            </button>
+            <button class="nav-btn" data-page="inventory">
+                <span class="nav-icon">🎒</span>
+                <span class="nav-label">Инвентарь</span>
+            </button>
+            <button class="nav-btn" data-page="profile">
+                <span class="nav-icon">👤</span>
+                <span class="nav-label">Профиль</span>
+            </button>
+        </nav>
     </div>
 
     <script src="/scripts/app.js"></script>
-
-<!-- Добавим секцию для игры -->
-<div id="game-page" class="page">
-    <div class="game-container">
-        <div class="game-header">
-            <h2>PvP Рулетка</h2>
-            <div class="game-id">#<span id="game-number">113091</span></div>
-        </div>
-        
-        <div class="wheel-container">
-            <div class="wheel" id="wheel">
-                <div class="wheel-segment player1-segment"></div>
-                <div class="wheel-segment player2-segment"></div>
-                <div class="wheel-pointer"></div>
-            </div>
-        </div>
-        
-        <div class="game-info">
-            <div class="bank-info">
-                <h3>Общий банк</h3>
-                <p><span id="total-gifts">0</span> ГИФТОВ / <span id="total-ton">0</span> TON</p>
-            </div>
-            
-            <div class="players-info">
-                <div class="player player1">
-                    <span class="player-name">Ваша ставка</span>
-                    <span class="player-bet">0 TON</span>
-                    <span class="player-chance">0%</span>
-                </div>
-                <div class="player player2">
-                    <span class="player-name">Оппонент</span>
-                    <span class="player-bet">0 TON</span>
-                    <span class="player-chance">0%</span>
-                </div>
-            </div>
-        </div>
-        
-        <div class="game-controls">
-            <div class="timer" id="game-timer">
-                Старт через 00:00
-            </div>
-            <button class="btn btn-primary" id="place-bet">
-                Сделать ставку
-            </button>
-            <button class="btn btn-secondary" id="add-bet">
-                Добавить Гифты
-            </button>
-        </div>
-    </div>
-</div>
-
 </body>
 </html>
