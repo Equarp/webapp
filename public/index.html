@@ -2,28 +2,12 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Game WebApp</title>
     <meta name="telegram-web-app-bot-api-version" content="9.0">
     <link rel="stylesheet" href="/styles/main.css">
     <link rel="stylesheet" href="/styles/animations.css">
-    <link rel="stylesheet" href="/styles/game.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        /* Базовая блокировка масштабирования */
-        body {
-            -webkit-user-select: none;
-            user-select: none;
-            touch-action: manipulation;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        /* Разрешаем выделение в полях ввода */
-        input, textarea {
-            -webkit-user-select: text;
-            user-select: text;
-        }
-    </style>
 </head>
 <body>
     <div id="loading-screen" class="loading-screen">
@@ -34,10 +18,12 @@
     </div>
 
     <div id="app" class="app hidden">
-        <header class="header">
-            <h1 class="app-title">Game WebApp</h1>
-        </header>
+        <!-- остальное содержимое без изменений -->
+    </div>
 
+    <script src="/scripts/app.js"></script>
+</body>
+</html>
         <main class="main-content">
             <div id="home-page" class="page">
                 <div class="welcome-section">
@@ -161,3 +147,4 @@
     <script src="/scripts/app.js"></script>
 </body>
 </html>
+
